@@ -1,0 +1,1 @@
+npx cf-bindings-proxy --d1=freedom_d1
