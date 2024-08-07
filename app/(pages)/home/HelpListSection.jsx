@@ -35,8 +35,11 @@ export default function HelpListSection() {
   useEffect(() => {
     if (fetchState === fetchStates.idle) {
       console.log("resetting fetch counter", refreshTimeCounter);
-
       setRefreshTimeCounter(REFRESH_TIME);
+    } else if (fetchState !== fetchStates.loading) {
+      if (!userLocation.current) {
+        getLocation();
+      }
     }
   }, [fetchState]);
 
@@ -81,9 +84,11 @@ export default function HelpListSection() {
 
   const fetchData = async (ignoreFetchState) => {
     if (!userLocation.current) {
-      forceRefreshCounter.current = FORCE_REFRESH_TIME;
+      // forceRefreshCounter.current = FORCE_REFRESH_TIME;
       // setRefreshTimeCounter(REFRESH_TIME);
-      setFetchState(fetchStates.idle);
+      // setFetchState(fetchStates.shareLocation);
+      getLocation();
+
       return;
     }
     if (
