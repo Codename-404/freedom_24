@@ -33,7 +33,11 @@ export default function HelpListSection() {
   }, []);
 
   useEffect(() => {
-    if (fetchState === fetchStates.idle) setRefreshTimeCounter(REFRESH_TIME);
+    if (fetchState === fetchStates.idle) {
+      console.log("resetting fetch counter", refreshTimeCounter);
+
+      setRefreshTimeCounter(REFRESH_TIME);
+    }
   }, [fetchState]);
 
   const getLocationPermission = () => {
@@ -61,7 +65,7 @@ export default function HelpListSection() {
           userLocation.current = {};
           userLocation.current.lat = position.coords.latitude;
           userLocation.current.lon = position.coords.longitude;
-
+          fetchData(true);
           setFetchState(fetchStates.idle);
 
           console.log("found location", userLocation.current);
@@ -75,7 +79,7 @@ export default function HelpListSection() {
     }
   };
 
-  const fetchData = async () => {
+  const fetchData = async (ignoreFetchState) => {
     if (!userLocation.current) {
       forceRefreshCounter.current = FORCE_REFRESH_TIME;
       // setRefreshTimeCounter(REFRESH_TIME);
@@ -83,8 +87,9 @@ export default function HelpListSection() {
       return;
     }
     if (
-      fetchState === fetchStates.shareLocation ||
-      fetchState === fetchStates.locationNotAvailable
+      !ignoreFetchState &&
+      (fetchState === fetchStates.shareLocation ||
+        fetchState === fetchStates.locationNotAvailable)
     ) {
       forceRefreshCounter.current = FORCE_REFRESH_TIME;
       // setRefreshTimeCounter(REFRESH_TIME);
@@ -151,7 +156,7 @@ export default function HelpListSection() {
   const getSortedData = () => {
     if (!needHelpData.current) return [];
     if (sortBy === "time") {
-      return [...needHelpData.current].sort((a, b) => b.time - a.time);
+      return [...needHelpData.current].sort((a, b) => a.time - b.time);
     } else {
       return [...needHelpData.current].sort((a, b) => {
         return a.dist || 0 - b.dist || 0;

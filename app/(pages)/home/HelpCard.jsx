@@ -43,9 +43,9 @@ export default function HelpCard({ info }) {
           </div>
 
           <div className="w-fit flex flex-col">
-            <h2>দেখেছেন: {views}</h2>
+            <h2>দেখেছেন: {views}</h2>
 
-            <h2>দূরত্ব: {dist}</h2>
+            <h2>দূরত্ব: {dist?.toFixed(2)} কি.মি.</h2>
             <h2>রিকোয়েস্ট করেছেন: {time} মিনিট আগে</h2>
           </div>
 
