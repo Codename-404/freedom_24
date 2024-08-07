@@ -16,8 +16,10 @@ export async function GET(request) {
   res = await helpModel.CreateTable({ strategy: "force" });
 
   const qur = `CREATE INDEX IF NOT EXISTS helpdata_loc ON helpdata(lat,lon)`;
+  const qur1 = `CREATE INDEX IF NOT EXISTS helpdata_ip ON helpdata(victim_ip)`;
 
   res = await orm.prepare(qur).run();
+  res = await orm.prepare(qur1).run();
 
   return new Response(JSON.stringify(res), { status: 200 });
 }

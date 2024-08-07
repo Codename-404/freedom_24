@@ -36,7 +36,10 @@ export default function HelpForm({ onClose }) {
           isPending.current = false;
           setLocationShareState(locationShareStates.success);
 
-          console.log("found location", inputData.current.location);
+          console.log("found location", [
+            inputData.current.lat,
+            inputData.current.lon,
+          ]);
         },
         (error) => {
           console.error(error.message);
@@ -54,6 +57,10 @@ export default function HelpForm({ onClose }) {
 
   const onSubmit = async () => {
     if (isPending.current) return;
+
+    if (!locationShareState === locationShareStates.success) {
+      window.alert("ব্রাউজারের সেটিংস থেকে লোকেশন শেয়ার করুন");
+    }
     isPending.current = true;
 
     try {
@@ -62,7 +69,16 @@ export default function HelpForm({ onClose }) {
         body: JSON.stringify(inputData.current),
       });
       if (!req.ok) {
-        window.alert("ইন্টারনেট কানেকশন চেক করুন, পুনরায় সাবমিট করুন");
+        if (req.status === 300) {
+          const res = await req.json();
+          window.alert(res.message);
+        } else {
+          window.alert("ইন্টারনেট কানেকশন চেক করুন, পুনরায় সাবমিট করুন");
+        }
+
+        isPending.current = false;
+
+        return;
       }
       const res = await req.json();
       if (res.success) {
@@ -70,6 +86,7 @@ export default function HelpForm({ onClose }) {
       } else {
         console.error(res.message);
       }
+      window.alert(res.message);
     } catch (error) {
       console.error(error.message);
       window.alert("ইন্টারনেট কানেকশন চেক করুন, পুনরায় সাবমিট করুন");
@@ -133,7 +150,7 @@ export default function HelpForm({ onClose }) {
                   label={"লোকেশন লিখুন"}
                   type={"text"}
                   onChange={(value) => {
-                    inputData.current.location = value;
+                    inputData.current.details += value;
                   }}
                 />
               )}
