@@ -33,17 +33,17 @@ export async function GET(request) {
 
   // if (radius === "undefined") radius = 5;
 
-  if (!lat || !lon) {
-    return new NextResponse(
-      JSON.stringify({
-        data: [],
-        success: false,
-        message:
-          "Your location is required, share your location from the browser",
-      }),
-      { status: 500 }
-    );
-  }
+  // if (!lat || !lon) {
+  //   return new NextResponse(
+  //     JSON.stringify({
+  //       data: [],
+  //       success: false,
+  //       message:
+  //         "Your location is required, share your location from the browser",
+  //     }),
+  //     { status: 500 }
+  //   );
+  // }
 
   try {
     // lat = Number(lat);
