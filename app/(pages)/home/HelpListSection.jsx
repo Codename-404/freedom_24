@@ -124,6 +124,8 @@ export default function HelpListSection() {
             needHelpData.current[i][helpKeys.lon]
           );
 
+          console.log("dist", dist);
+
           needHelpData.current[i].dist = dist;
         }
       }
@@ -159,7 +161,7 @@ export default function HelpListSection() {
       return [...needHelpData.current].sort((a, b) => a.time - b.time);
     } else {
       return [...needHelpData.current].sort((a, b) => {
-        return a.dist || 0 - b.dist || 0;
+        return (a.dist || 0) - (b.dist || 0);
       });
     }
   };
