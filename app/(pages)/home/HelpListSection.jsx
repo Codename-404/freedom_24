@@ -66,7 +66,7 @@ export default function HelpListSection() {
           userLocation.current.lat = position.coords.latitude;
           userLocation.current.lon = position.coords.longitude;
           fetchData(true);
-          setFetchState(fetchStates.idle);
+          // setFetchState(fetchStates.idle);
 
           console.log("found location", userLocation.current);
         },
@@ -91,9 +91,9 @@ export default function HelpListSection() {
       (fetchState === fetchStates.shareLocation ||
         fetchState === fetchStates.locationNotAvailable)
     ) {
-      forceRefreshCounter.current = FORCE_REFRESH_TIME;
+      // forceRefreshCounter.current = FORCE_REFRESH_TIME;
       // setRefreshTimeCounter(REFRESH_TIME);
-      setFetchState(fetchStates.idle);
+      // setFetchState(fetchStates.idle);
       return;
     }
 
