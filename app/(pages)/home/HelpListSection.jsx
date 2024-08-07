@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import HelpCard from "./HelpCard";
 import LoadingScreen from "../comps/LoadingScreen";
 import LoadingMessage from "../comps/LoadingMessage";
-import { makeQueryStringUrl } from "@/util/data";
+import { haversineDistance, helpKeys, makeQueryStringUrl } from "@/util/data";
 
 const REFRESH_TIME = 30;
 const FORCE_REFRESH_TIME = 5;
@@ -21,6 +21,7 @@ export default function HelpListSection() {
   const [fetchState, setFetchState] = useState(fetchStates.shareLocation);
   const interval = useRef(null);
   const needHelpData = useRef([]);
+  const [sortBy, setSortBy] = useState("time");
   const userLocation = useRef(null);
 
   useEffect(() => {
@@ -109,6 +110,17 @@ export default function HelpListSection() {
 
       if (helpData.success) {
         needHelpData.current = helpData.data;
+
+        for (let i = 0; i < needHelpData.current.length; i++) {
+          const dist = haversineDistance(
+            userLocation.current.lat,
+            userLocation.current.lon,
+            needHelpData.current[i][helpKeys.lat],
+            needHelpData.current[i][helpKeys.lon]
+          );
+
+          needHelpData.current[i].dist = dist;
+        }
       }
     }
 
@@ -136,6 +148,17 @@ export default function HelpListSection() {
     }
   }, [refreshTimeCounter]);
 
+  const getSortedData = () => {
+    if (!needHelpData.current) return [];
+    if (sortBy === "time") {
+      return [...needHelpData.current].sort((a, b) => b.time - a.time);
+    } else {
+      return [...needHelpData.current].sort((a, b) => {
+        return a.dist || 0 - b.dist || 0;
+      });
+    }
+  };
+
   return (
     <div className="w-full h-full relative flex flex-col">
       {fetchState === fetchStates.loading && (
@@ -149,6 +172,18 @@ export default function HelpListSection() {
 
       <div className="w-full h-fit flex justify-between">
         <h1>অন্যকে সাহায্য করুন</h1>
+        <div className="w-fit h-fit text-white flex gap-2">
+          <p>ফিল্টার করুন</p>
+          <select
+            className="rounded-md px-4 text-black"
+            onChange={(e) => {
+              setSortBy(e.target.value);
+            }}
+          >
+            <option value="time">সময়</option>
+            <option value="distance">দূরত্ব</option>
+          </select>
+        </div>
 
         <button
           disabled={forceRefreshCounter.current}
@@ -170,7 +205,7 @@ export default function HelpListSection() {
       >
         {needHelpData.current.length ? (
           <div className="w-full h-fit flex flex-col gap-4 ">
-            {needHelpData.current.map((data) => {
+            {getSortedData().map((data) => {
               return <HelpCard key={data.id} info={data} />;
             })}
           </div>

@@ -27,11 +27,11 @@ export async function GET(request) {
 
   const url = new URL(request.url);
 
-  let lat = url.searchParams.get("lat");
-  let lon = url.searchParams.get("lon");
-  let radius = url.searchParams.get("radius") || 5;
+  // let lat = url.searchParams.get("lat");
+  // let lon = url.searchParams.get("lon");
+  // let radius = url.searchParams.get("radius") || 5;
 
-  if (radius === "undefined") radius = 5;
+  // if (radius === "undefined") radius = 5;
 
   if (!lat || !lon) {
     return new NextResponse(
@@ -46,8 +46,8 @@ export async function GET(request) {
   }
 
   try {
-    lat = Number(lat);
-    lon = Number(lon);
+    // lat = Number(lat);
+    // lon = Number(lon);
     //   const paylaod = [];
     //   for (let i = 0; i < 100; i++) {
     //     paylaod.push({
@@ -58,19 +58,18 @@ export async function GET(request) {
     //   }
     //   const allData = await testModel.InsertMany(paylaod);
 
-    const { latMin, latMax, lonMin, lonMax } = getBoundingBox(lat, lon, radius);
+    // const { latMin, latMax, lonMin, lonMax } = getBoundingBox(lat, lon, radius);
 
-    console.log("coming bounding box", {
-      latMin,
-      latMax,
-      lonMin,
-      lonMax,
-    });
+    // console.log("coming bounding box", {
+    //   latMin,
+    //   latMax,
+    //   lonMin,
+    //   lonMax,
+    // });
 
     const qurObj = {
-      query:
-        "SELECT * FROM helpdata WHERE lat BETWEEN ? AND ? AND lon BETWEEN ? AND ?;",
-      binding: [latMin, latMax, lonMin, lonMax],
+      query: "SELECT * FROM helpdata WHERE added_at >= ?;",
+      binding: [Date.now() - 1 * 60 * 60 * 1000],
     };
 
     const allData = await orm
@@ -78,7 +77,7 @@ export async function GET(request) {
       .bind(...qurObj.binding)
       .all();
 
-    // const allData = await helpModel.All();
+    // const allData = await helpModel.All({where:{added_at}});
     if (allData.error) {
       console.log("Error on help GET db", allData.error);
 
@@ -92,11 +91,18 @@ export async function GET(request) {
       );
     }
 
+    const modified = [];
+    for (let i = 0; i < allData.results.length; i++) {
+      let time = (Date.now() - allData.results[i][helpKeys.added_at]) / 1000;
+      time = Math.floor(time / 60);
+
+      modified.push({ ...allData.results[i], time });
+    }
     console.log("found help data", allData.results);
 
     return new NextResponse(
       JSON.stringify({
-        data: allData.results,
+        data: modified,
         success: true,
         message: "Successfully fetched help items",
       }),
