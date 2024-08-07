@@ -1,5 +1,5 @@
 import { getDB } from "@/db/getDB";
-import { TestModel } from "@/db/models";
+import { HelpModel } from "@/db/models";
 import { D1Orm } from "d1-orm";
 
 export const runtime = "edge";
@@ -7,12 +7,15 @@ export const runtime = "edge";
 export async function GET(request) {
   let res = null;
 
+  console.log("coming getDB()", getDB());
+
   const orm = new D1Orm(getDB());
-  const tempModel = TestModel(orm);
+  const helpModel = HelpModel(orm);
+  console.log("helpModel", helpModel);
 
-  //   res = await tempModel.CreateTable({ strategy: "force" });
+  res = await helpModel.CreateTable({ strategy: "force" });
 
-  const qur = `CREATE INDEX IF NOT EXISTS test_value ON testdata(value)`;
+  const qur = `CREATE INDEX IF NOT EXISTS helpdata_loc ON helpdata(lat,lon)`;
 
   res = await orm.prepare(qur).run();
 

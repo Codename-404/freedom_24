@@ -11,7 +11,7 @@ export default function HelpButton() {
       <button
         onClick={() => setOpen(true)}
         className="bg-red-500 rounded-xl w-full 
-  h-20 md:h-40 text-6xl px-2 pt-1 md:pt-4
+  h-20 md:h-24 text-6xl px-2 pt-1 md:pt-4
 transition-all duration-300 hover:bg-red-700"
       >
         সাহায্য চাই

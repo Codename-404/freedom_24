@@ -3,4 +3,4 @@
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "freedom_d1"
-database_id = "833df937-3a82-4266-b3a4-39a44c62252e"
+database_id = "a1474ed9-d242-4ce8-9168-eb3de69a35b4"
