@@ -17,9 +17,11 @@ export async function GET(request) {
 
   const qur = `CREATE INDEX IF NOT EXISTS helpdata_loc ON helpdata(lat,lon)`;
   const qur1 = `CREATE INDEX IF NOT EXISTS helpdata_ip ON helpdata(victim_ip)`;
+  const qur2 = `CREATE INDEX IF NOT EXISTS helpdata_id ON helpdata(id)`;
 
   res = await orm.prepare(qur).run();
   res = await orm.prepare(qur1).run();
+  res = await orm.prepare(qur2).run();
 
   return new Response(JSON.stringify(res), { status: 200 });
 }
