@@ -1,7 +1,10 @@
 import { getDB } from "@/db/getDB";
 import { HelpModel, TestModel } from "@/db/models";
 import { helpKeys } from "@/util/data";
-import { getBoundingBox } from "@/util/serverUtilFunc";
+import verifySession, {
+  checkOrigin,
+  getBoundingBox,
+} from "@/util/serverUtilFunc";
 import { D1Orm, GenerateQuery, QueryType } from "d1-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -22,6 +25,19 @@ const getUserIp = (lat, lon) => {
 };
 
 export async function GET(request) {
+  const originCheck = checkOrigin(request);
+  if (!originCheck) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  const sessionDataRes = await verifySession();
+
+  if (!sessionDataRes || !sessionDataRes.success) {
+    return NextResponse.json(
+      sessionDataRes || { message: "Session not found" }
+    );
+  }
+
   const orm = new D1Orm(getDB());
   const helpModel = HelpModel(orm);
 
@@ -60,13 +76,6 @@ export async function GET(request) {
 
     // const { latMin, latMax, lonMin, lonMax } = getBoundingBox(lat, lon, radius);
 
-    // console.log("coming bounding box", {
-    //   latMin,
-    //   latMax,
-    //   lonMin,
-    //   lonMax,
-    // });
-
     const qurObj = {
       query: "SELECT * FROM helpdata WHERE added_at >= ?;",
       binding: [Date.now() - 1 * 60 * 60 * 1000],
@@ -96,6 +105,9 @@ export async function GET(request) {
       let time = (Date.now() - allData.results[i][helpKeys.added_at]) / 1000;
       time = Math.floor(time / 60);
 
+      delete allData.results[i].victim_ip;
+      delete allData.results[i].victim_email;
+
       modified.push({ ...allData.results[i], time });
     }
     console.log("found help data", allData.results);
@@ -122,6 +134,18 @@ export async function GET(request) {
   }
 }
 export async function POST(request) {
+  const originCheck = checkOrigin(request);
+  if (!originCheck) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  const sessionDataRes = await verifySession();
+  if (!sessionDataRes || !sessionDataRes.success) {
+    return NextResponse.json(
+      sessionDataRes || { message: "Session not found" }
+    );
+  }
+
   const orm = new D1Orm(getDB());
   const helpModel = HelpModel(orm);
 
@@ -136,7 +160,7 @@ export async function POST(request) {
       : 0;
 
     const isRequested = await helpModel.First({
-      where: { victim_ip: userIp, isTest: isTesting },
+      where: { victim_email: sessionDataRes.data.email, isTest: isTesting },
     });
     console.log("coming paylaod", paylaod);
 
@@ -155,7 +179,9 @@ export async function POST(request) {
           { status: 300 }
         );
       }
-      await helpModel.Delete({ where: { victim_ip: userIp } });
+      await helpModel.Delete({
+        where: { victim_email: sessionDataRes.data.email },
+      });
     }
 
     const res = await helpModel.InsertOne({
@@ -164,6 +190,7 @@ export async function POST(request) {
       views: 0,
       isTest: isTesting,
       victim_ip: userIp.toString(),
+      victim_email: sessionDataRes.data.email,
       added_at: Date.now(),
     });
 
@@ -212,11 +239,23 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
+  const originCheck = checkOrigin(request);
+  if (!originCheck) {
+    return new Response("Forbidden", { status: 403 });
+  }
+
+  const sessionDataRes = await verifySession();
+  console.log("coming sessionDataRes", sessionDataRes);
+  if (!sessionDataRes || !sessionDataRes.success) {
+    return NextResponse.json(
+      sessionDataRes || { message: "Session not found" }
+    );
+  }
+
   const orm = new D1Orm(getDB());
   const helpModel = HelpModel(orm);
 
   const paylaod = await request.json();
-  const userIp = getUserIp(paylaod.lat || 0, paylaod.lon || 0);
 
   try {
     const isRequested = await helpModel.First({
@@ -234,7 +273,7 @@ export async function PUT(request) {
       );
     }
 
-    if (isRequested[helpKeys.victim_ip === userIp]) {
+    if (isRequested[helpKeys.victim_email === sessionDataRes.data.email]) {
       return new NextResponse(
         JSON.stringify({
           data: [],

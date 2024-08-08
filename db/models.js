@@ -19,6 +19,7 @@ export const HelpModel = (orm) => {
       views: DataTypes.INT,
       isTest: DataTypes.INT,
 
+      victim_email: DataTypes.STRING,
       victim_ip: DataTypes.STRING,
       added_at: DataTypes.INT,
     }
@@ -37,6 +38,7 @@ export const UserModel = (orm) => {
       id: DataTypes.STRING,
       name: DataTypes.STRING,
       email: DataTypes.STRING,
+      picture: DataTypes.STRING,
       added_at: DataTypes.INT,
     }
   );

@@ -53,12 +53,6 @@ export default function TextInput({
       required &&
       ((!value && typeof value !== "number") || (value && value.length <= 0))
     ) {
-      console.log(
-        "input cond",
-        label,
-        !value && typeof value !== "number",
-        value && value.length <= 0
-      );
       setShowWarning(true);
     } else if (showWarning) {
       setShowWarning(false);

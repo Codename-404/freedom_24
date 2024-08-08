@@ -1,5 +1,3 @@
-import apiUrls from "@/app/utils/apiUrls";
-
 import jwt from "@tsndr/cloudflare-worker-jwt";
 import { D1Orm } from "d1-orm";
 import { cookies } from "next/headers";
@@ -14,7 +12,6 @@ import { getDB } from "@/db/getDB";
 export const runtime = "edge";
 
 export async function GET(req) {
-  console.log("coming url", req.url);
   const searchParams = new URLSearchParams(req.url);
   const accessCode = searchParams.get("code");
 
@@ -23,8 +20,6 @@ export async function GET(req) {
   const redirect_uri = makeQueryStringUrl(hostname + "/api/auth/callback", {
     provider: "google",
   });
-
-  console.log("redirect uri", redirect_uri);
 
   const tokenRes = await fetch(
     makeQueryStringUrl("https://oauth2.googleapis.com/token", {
@@ -42,9 +37,8 @@ export async function GET(req) {
 
   if (!tokenRes.ok) {
     const tokenText = await tokenRes.text();
-    console.log("tokenText", tokenText);
     redirect(
-      makeQueryStringUrl("/login", {
+      makeQueryStringUrl("/", {
         status: 403,
         success: false,
         message: "Authtication failed",
@@ -56,7 +50,7 @@ export async function GET(req) {
   if (!data) {
     console.log("token data is not valid, auth failed");
     redirect(
-      makeQueryStringUrl("/login", {
+      makeQueryStringUrl("/", {
         status: 403,
         success: false,
         message: "Authtication failed",
@@ -65,8 +59,6 @@ export async function GET(req) {
   }
 
   const { payload: userInfo } = jwt.decode(data["id_token"]);
-
-  console.log("userInfo", userInfo);
 
   try {
     // const { Client } = pg;
@@ -82,8 +74,6 @@ export async function GET(req) {
     //   userInfo["email"],
     // ]);
 
-    console.log("found user", user);
-
     let userData = null;
     if (user) {
       userData = user;
@@ -92,13 +82,13 @@ export async function GET(req) {
         id: v4(),
         email: userInfo["email"],
         name: userInfo["name"],
-        role: 2,
+        picture: userInfo["picture"],
       };
       const newUser = await userModel.InsertOne(userData);
 
       if (!newUser.rowCount) {
         redirect(
-          makeQueryStringUrl("/login", {
+          makeQueryStringUrl("/", {
             status: 500,
             success: false,
             message: "Failed to log in, try again later",
@@ -109,19 +99,17 @@ export async function GET(req) {
       userData = newUser;
     }
 
-    const expire = Date.now() + 1000 * 60 * 60 * 24;
+    const expire = Date.now() + 1000 * 60 * 60 * 24 * 7;
 
     const jwtPayload = {
       id: userData.id,
       name: userInfo["name"],
-      image: userInfo["image"],
-      role: userData.role,
+      email: userInfo["email"],
+      picture: userInfo["picture"],
       exp: expire,
     };
 
     const jwtToken = await jwt.sign(jwtPayload, process.env.AUTH_SECRET);
-
-    console.log("jwt values", jwtToken);
 
     cookies().set({
       name: "jwtToken",
@@ -133,13 +121,16 @@ export async function GET(req) {
     });
 
     const callback_url = cookies().get("callback_url");
+    const url = new URL(req.url);
 
-    return NextResponse.redirect(callback_url ? callback_url.value : `/`);
+    return NextResponse.redirect(
+      callback_url ? callback_url.value : url.origin
+    );
   } catch (error) {
     console.log("Login failed", error);
 
     redirect(
-      makeQueryStringUrl("/login", {
+      makeQueryStringUrl("/", {
         status: 500,
         success: false,
         message: "Failed to log in, try again later",
@@ -148,7 +139,7 @@ export async function GET(req) {
   }
 
   redirect(
-    makeQueryStringUrl("/login", {
+    makeQueryStringUrl("/", {
       status: 200,
       success: true,
       message: "Successfully logged in",

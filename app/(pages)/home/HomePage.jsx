@@ -1,11 +1,40 @@
-import React from "react";
-import HelpCard from "./HelpCard";
-import Portal from "../comps/Portal";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import HelpButton from "./HelpButton";
 import HelpListSection from "./HelpListSection";
 import ArmyContact from "../comps/ArmyContact";
+import AuthWindow from "../comps/AuthWindow";
 
 export default function HomePage() {
+  const [sessionData, setSessionData] = useState(null);
+  const [userLocation, setUserLocation] = useState(null);
+
+  const getLocation = () => {
+    if (!sessionData) return;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
+
+          // setFetchState(fetchStates.idle);
+        },
+        (error) => {
+          console.error(error.message);
+        }
+      );
+    } else {
+      console.error("Geolocation is not supported by this browser.");
+    }
+  };
+  useEffect(() => {
+    getLocation();
+  }, [sessionData]);
+
   return (
     <div className="w-screen h-fit min-h-screen p-4 md:p-10 relative">
       <div
@@ -19,7 +48,7 @@ export default function HomePage() {
                 <ArmyContact />
               </div>
             </div>
-            <HelpButton />
+            {userLocation && <HelpButton userLocation={userLocation} />}
             <div className="w-full grow flex md:flex-col">
               <img
                 src="/images/bd_flag_rect.webp"
@@ -67,9 +96,24 @@ export default function HomePage() {
           className="w-full h-[65%] md:h-full 
       flex flex-col justify-start items-center gap-2"
         >
-          <HelpListSection />
+          {userLocation && <HelpListSection userLocation={userLocation} />}
+          {!userLocation && (
+            <div className="w-full h-full flex flex-col justify-center items-center">
+              <p className="text-2xl">"আপনার লোকেশন শেয়ার করুন"</p>
+              <button
+                onClick={(e) => {
+                  getLocation(e);
+                }}
+                className="w-60 h-fit pt-2.5 pb-1.5 px-4 bg-teal-500 rounded-lg text-white"
+              >
+                লোকেশন শেয়ার করুন
+              </button>
+            </div>
+          )}
         </div>
       </div>
+
+      <AuthWindow sessionData={sessionData} setSessionData={setSessionData} />
     </div>
   );
 }

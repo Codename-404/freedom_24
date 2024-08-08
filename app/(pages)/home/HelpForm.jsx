@@ -35,11 +35,6 @@ export default function HelpForm({ onClose }) {
           inputData.current.lon = position.coords.longitude;
           isPending.current = false;
           setLocationShareState(locationShareStates.success);
-
-          console.log("found location", [
-            inputData.current.lat,
-            inputData.current.lon,
-          ]);
         },
         (error) => {
           console.error(error.message);

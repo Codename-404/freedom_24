@@ -14,6 +14,7 @@ export const helpKeys = {
   views: "views",
   isTest: "isTest",
   victim_ip: "victim_ip",
+  victim_email: "victim_email",
   added_at: "added_at",
 };
 
@@ -179,13 +180,39 @@ const numMap = {
 };
 
 export const convertNumbersToEnglish = (numberStr) => {
-  console.log("coming to convert number", numberStr);
   if (!numberStr) return "";
   const convertedNum = numberStr
     .split("")
     .map((num) => numMap[num])
     .join("");
 
-  console.log("convertedNum", convertedNum);
   return convertedNum;
+};
+
+export const getGoogleAuthURL = () => {
+  if (typeof window === "undefined") return "";
+
+  const clientId =
+    "985996704788-ru0frja1q6nh29bqifr7ibsgmavj1ka1.apps.googleusercontent.com";
+
+  //   const clientIdReq = await fetch(apiUrls.api_client_id);
+  //   const clientIdRes = await clientIdReq.json();
+
+  //   const clientId = clientIdRes.data;
+
+  const hostname = window.location.origin;
+
+  const redirectUri = makeQueryStringUrl(hostname + "/api/auth/callback", {
+    provider: "google",
+    // inviteKey: token || "",
+  });
+
+  const scope = "openid email profile";
+
+  const authUrl =
+    `https://accounts.google.com/o/oauth2/auth?` +
+    `client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code` +
+    `&scope=${scope}`;
+
+  return authUrl;
 };
