@@ -1,10 +1,13 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import HelpCard from "./HelpCard";
 import LoadingScreen from "../comps/LoadingScreen";
 import LoadingMessage from "../comps/LoadingMessage";
 import { haversineDistance, helpKeys, makeQueryStringUrl } from "@/util/data";
+import useRefreshComponent from "../comps/useRefreshComponent";
+import InfiniteScroll from "react-infinite-scroll-component";
+import useWindowResize from "../comps/useWindowResize";
 
 const REFRESH_TIME = 30;
 const FORCE_REFRESH_TIME = 5;
@@ -16,31 +19,26 @@ const fetchStates = {
 };
 
 export default function HelpListSection({ userLocation }) {
-  const [refreshTimeCounter, setRefreshTimeCounter] = useState(0);
-  const forceRefreshCounter = useRef(FORCE_REFRESH_TIME);
+  const [canRefresh, setCanRefresh] = useState(true);
   const [fetchState, setFetchState] = useState(fetchStates.shareLocation);
   const interval = useRef(null);
   const needHelpData = useRef([]);
   const testData = useRef([]);
   const [sortBy, setSortBy] = useState("time");
   const radius = useRef(5);
+  const lastRefreshTime = useRef(0);
+
+  const refreshComp = useRefreshComponent();
+  const userHelpData = useRef([]);
+  const page = useRef(0);
+  const hasMore = useRef(true);
+  const windowSize = useWindowResize();
 
   useEffect(() => {
     if (userLocation) {
       setFetchState(fetchStates.idle);
     }
   }, []);
-
-  useEffect(() => {
-    if (fetchState === fetchStates.idle) {
-      setRefreshTimeCounter(REFRESH_TIME);
-    }
-    // else if (fetchState !== fetchStates.loading) {
-    // if (!userLocation.current) {
-    // getLocation();
-    // }
-    // }
-  }, [fetchState]);
 
   const getLocationPermission = () => {
     if ("geolocation" in navigator) {
@@ -59,47 +57,24 @@ export default function HelpListSection({ userLocation }) {
     }
   };
 
-  // const getLocation = () => {
-  //   if (navigator.geolocation) {
-  //     navigator.geolocation.getCurrentPosition(
-  //       (position) => {
-  //         userLocation.current = {};
-  //         userLocation.current.lat = position.coords.latitude;
-  //         userLocation.current.lon = position.coords.longitude;
-  //         fetchData(true);
-  //         // setFetchState(fetchStates.idle);
+  useEffect(() => {
+    if (canRefresh) return;
 
-  //       },
-  //       (error) => {
-  //         console.error(error.message);
-  //       }
-  //     );
-  //   } else {
-  //     console.error("Geolocation is not supported by this browser.");
-  //   }
-  // };
+    const timer = setTimeout(() => {
+      setCanRefresh(true);
+    }, 3000);
 
-  const fetchData = async (ignoreFetchState) => {
+    return () => clearTimeout(timer);
+  }, [canRefresh]);
+
+  const fetchData = async () => {
     if (!userLocation) {
-      // forceRefreshCounter.current = FORCE_REFRESH_TIME;
-      // setRefreshTimeCounter(REFRESH_TIME);
-      // setFetchState(fetchStates.shareLocation);
-      // getLocation();
-
-      return;
-    }
-    if (
-      !ignoreFetchState &&
-      (fetchState === fetchStates.shareLocation ||
-        fetchState === fetchStates.locationNotAvailable)
-    ) {
-      // forceRefreshCounter.current = FORCE_REFRESH_TIME;
-      // setRefreshTimeCounter(REFRESH_TIME);
-      // setFetchState(fetchStates.idle);
       return;
     }
 
     if (fetchState === fetchStates.loading) return;
+
+    setCanRefresh(false);
 
     setFetchState(fetchStates.loading);
     clearInterval(interval.current);
@@ -109,58 +84,58 @@ export default function HelpListSection({ userLocation }) {
         lat: userLocation[0],
         lon: userLocation[1],
         radius: radius.current,
+        page: page.current,
       })
     );
 
-    needHelpData.current = [];
-    testData.current = [];
+    if (!page.current) {
+      needHelpData.current = [];
+      testData.current = [];
+    }
 
     if (helpDataReq.ok) {
       const helpData = await helpDataReq.json();
 
       if (helpData.success) {
-        for (let i = 0; i < helpData.data.length; i++) {
-          const dist = haversineDistance(
-            userLocation[0],
-            userLocation[1],
-            helpData.data[i][helpKeys.lat],
-            helpData.data[i][helpKeys.lon]
-          );
+        if (!helpData.data.length) {
+          hasMore.current = false;
+        } else {
+          for (let i = 0; i < helpData.data.length; i++) {
+            const dist = haversineDistance(
+              userLocation[0],
+              userLocation[1],
+              helpData.data[i][helpKeys.lat],
+              helpData.data[i][helpKeys.lon]
+            );
 
-          if (!helpData.data[i][helpKeys.isTest]) {
-            needHelpData.current.push({
-              ...helpData.data[i],
-              dist: dist,
-            });
-          } else {
-            testData.current.push({
-              ...helpData.data[i],
-              dist: dist,
-            });
+            if (!helpData.data[i][helpKeys.isTest]) {
+              needHelpData.current.push({
+                ...helpData.data[i],
+                dist: dist,
+              });
+            } else {
+              testData.current.push({
+                ...helpData.data[i],
+                dist: dist,
+              });
+            }
           }
+          page.current += 1;
         }
       }
     }
 
-    forceRefreshCounter.current = FORCE_REFRESH_TIME;
+    userHelpData.current = getSortedData();
+
+    console.log(
+      "total data",
+      needHelpData.current.length + testData.current.length
+    );
+
+    refreshComp();
     // setRefreshTimeCounter(REFRESH_TIME);
     setFetchState(fetchStates.idle);
   };
-
-  useEffect(() => {
-    if (refreshTimeCounter === 0) {
-      fetchData();
-    } else if (fetchState === fetchStates.idle) {
-      interval.current = setInterval(() => {
-        setRefreshTimeCounter(refreshTimeCounter - 1);
-        forceRefreshCounter.current = Math.max(
-          0,
-          forceRefreshCounter.current - 1
-        );
-      }, 1000);
-      return () => clearInterval(interval.current);
-    }
-  }, [refreshTimeCounter]);
 
   const getSortedData = () => {
     if (!needHelpData.current || !testData.current) return [];
@@ -177,6 +152,18 @@ export default function HelpListSection({ userLocation }) {
       });
       return sorted;
     }
+  };
+
+  useEffect(() => {
+    if (!needHelpData.current.length || !testData.current.length) {
+      fetchData();
+    }
+  }, [userLocation]);
+
+  const onRefreshScroll = async () => {
+    page.current = 0;
+    hasMore.current = true;
+    await fetchData();
   };
 
   return (
@@ -207,17 +194,19 @@ export default function HelpListSection({ userLocation }) {
         </div>
 
         <button
-          disabled={forceRefreshCounter.current}
+          disabled={!canRefresh}
           onClick={() => {
             if (!userLocation) {
               window.alert("ব্রাউজার সেটিংস থেকে লোকেশন শেয়ার করুন");
               return;
             }
-            fetchData();
+            if ((Date.now() - lastRefreshTime.current) / 1000 > 5) {
+              onRefreshScroll();
+            }
           }}
           className="w-16 flex gap-2 cursor-pointer disabled:text-neutral-600"
         >
-          রিফ্রেশ {refreshTimeCounter}
+          রিফ্রেশ
         </button>
       </div>
       <div
@@ -226,12 +215,43 @@ export default function HelpListSection({ userLocation }) {
       >
         {(sortBy !== "test" && needHelpData.current.length) ||
         (sortBy === "test" && testData.current.length) ? (
-          <div className="w-full h-fit flex flex-col gap-4 ">
-            {getSortedData().map((data) => {
+          // <div className="w-full h-fit flex flex-col gap-4 ">
+          <InfiniteScroll
+            height={
+              windowSize.width <= 768
+                ? windowSize.height * 0.6
+                : windowSize.height * 0.8
+            }
+            dataLength={userHelpData.current.length} //This is important field to render the next data
+            next={fetchData}
+            hasMore={hasMore.current}
+            loader={<h4>Loading...</h4>}
+            endMessage={
+              <p style={{ textAlign: "center" }}>
+                <b>সমাপ্তি</b>
+              </p>
+            }
+            // below props only if you need pull down functionality
+            refreshFunction={onRefreshScroll}
+            pullDownToRefresh
+            pullDownToRefreshThreshold={50}
+            pullDownToRefreshContent={
+              <h3 style={{ textAlign: "center" }}>
+                &#8595; Pull down to refresh
+              </h3>
+            }
+            releaseToRefreshContent={
+              <h3 style={{ textAlign: "center" }}>
+                &#8593; Release to refresh
+              </h3>
+            }
+          >
+            {userHelpData.current.map((data) => {
               return <HelpCard key={data.id} info={data} />;
             })}
-          </div>
+          </InfiniteScroll>
         ) : (
+          // </div>
           ""
         )}
 

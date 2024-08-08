@@ -13,7 +13,14 @@ export default function HelpCard({ info }) {
   // const lat = 23.810097;
   // const lon = 90.431327;
 
-  const openMap = () => {
+  const openMap = async () => {
+    try {
+      await fetch("/api/help", {
+        method: "PUT",
+        body: JSON.stringify({ id: info.id }),
+      });
+    } catch (error) {}
+
     const url = `https://www.google.com/maps?q=${lat},${lon}`;
     window.open(url, "_blank");
   };

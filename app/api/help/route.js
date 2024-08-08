@@ -43,6 +43,9 @@ export async function GET(request) {
 
   const url = new URL(request.url);
 
+  let page = url.searchParams.get("page");
+  if (!page || page === "undefined") page = 0;
+  const limit = 12;
   // let lat = url.searchParams.get("lat");
   // let lon = url.searchParams.get("lon");
   // let radius = url.searchParams.get("radius") || 5;
@@ -76,15 +79,28 @@ export async function GET(request) {
 
     // const { latMin, latMax, lonMin, lonMax } = getBoundingBox(lat, lon, radius);
 
+    console.log("querying data", page, limit);
+
     const qurObj = {
-      query: "SELECT * FROM helpdata WHERE added_at >= ?;",
-      binding: [Date.now() - 1 * 60 * 60 * 1000],
+      query: `
+        SELECT * FROM helpdata 
+        WHERE added_at >= ? 
+        ORDER BY added_at DESC 
+        LIMIT ? OFFSET ?;
+      `,
+      binding: [
+        Date.now() - 1 * 60 * 60 * 1000, // 1 hour ago
+        limit,
+        limit * page,
+      ],
     };
 
     const allData = await orm
       .prepare(qurObj.query)
       .bind(...qurObj.binding)
       .all();
+
+    console.log("found data", allData.results.length);
 
     // const allData = await helpModel.All({where:{added_at}});
     if (allData.error) {
@@ -110,7 +126,7 @@ export async function GET(request) {
 
       modified.push({ ...allData.results[i], time });
     }
-    console.log("found help data", allData.results);
+    console.log("found help data", allData.results.length);
 
     return new NextResponse(
       JSON.stringify({
