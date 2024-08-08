@@ -3,6 +3,7 @@ import HelpCard from "./HelpCard";
 import Portal from "../comps/Portal";
 import HelpButton from "./HelpButton";
 import HelpListSection from "./HelpListSection";
+import ArmyContact from "../comps/ArmyContact";
 
 export default function HomePage() {
   return (
@@ -20,15 +21,22 @@ export default function HomePage() {
                 className="md:w-full w-60 md:max-w-2xl h-fit object-contain"
               />
               <div className="w-full h-full flex flex-col md:gap-2 text-center justify-center">
-                <h2 className="text-lg md:text-2xl">
-                  স্বাধীনতা অর্জনের চেয়ে রক্ষা করা কঠিন
-                </h2>
+                <h2 className="text-lg md:text-2xl">একে অপরকে সাহায্য করি</h2>
                 <p className="text-xl md:text-4xl text-white">
-                  দেশের স্বাধীনতা রক্ষায় এগিয়ে আসুন
+                  সন্ত্রাসমুক্ত বাংলাদেশ গড়ি
                 </p>
+
+                <div className="w-full h-fit block md:hidden">
+                  <ArmyContact />
+                </div>
               </div>
             </div>
             <HelpButton />
+            <div className="w-full h-fit hidden md:block">
+              <div className="w-full h-fit pt-4">
+                <ArmyContact />
+              </div>
+            </div>
           </div>
 
           {/* <div className="w-full flex flex-col gap-1 tracking-wide">

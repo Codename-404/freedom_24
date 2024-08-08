@@ -129,9 +129,14 @@ export async function POST(request) {
 
   try {
     const userIp = getUserIp(paylaod.lat, paylaod.lon);
+    const isTesting = paylaod[helpKeys.name]
+      ? paylaod[helpKeys.name].trim() === "test"
+        ? 1
+        : 0
+      : 0;
 
     const isRequested = await helpModel.First({
-      where: { victim_ip: userIp },
+      where: { victim_ip: userIp, isTest: isTesting },
     });
     console.log("coming paylaod", paylaod);
 
@@ -157,6 +162,7 @@ export async function POST(request) {
       ...paylaod,
       id: v4(),
       views: 0,
+      isTest: isTesting,
       victim_ip: userIp.toString(),
       added_at: Date.now(),
     });

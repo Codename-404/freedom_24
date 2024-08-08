@@ -21,6 +21,7 @@ export default function HelpListSection() {
   const [fetchState, setFetchState] = useState(fetchStates.shareLocation);
   const interval = useRef(null);
   const needHelpData = useRef([]);
+  const testData = useRef([]);
   const [sortBy, setSortBy] = useState("time");
   const userLocation = useRef(null);
 
@@ -114,24 +115,41 @@ export default function HelpListSection() {
         radius: userLocation.current.radius,
       })
     );
+
+    needHelpData.current = [];
+    testData.current = [];
+
     if (helpDataReq.ok) {
       const helpData = await helpDataReq.json();
       console.log("coming help data", helpData);
 
       if (helpData.success) {
-        needHelpData.current = helpData.data;
-
-        for (let i = 0; i < needHelpData.current.length; i++) {
+        for (let i = 0; i < helpData.data.length; i++) {
           const dist = haversineDistance(
             userLocation.current.lat,
             userLocation.current.lon,
-            needHelpData.current[i][helpKeys.lat],
-            needHelpData.current[i][helpKeys.lon]
+            helpData.data[i][helpKeys.lat],
+            helpData.data[i][helpKeys.lon]
           );
 
           console.log("dist", dist);
 
-          needHelpData.current[i].dist = dist;
+          if (!helpData.data[i][helpKeys.isTest]) {
+            needHelpData.current.push({
+              ...helpData.data[i],
+              dist: dist,
+            });
+          } else {
+            testData.current.push({
+              ...helpData.data[i],
+              dist: dist,
+            });
+          }
+
+          console.log("found help data and test data", {
+            needHelpData: needHelpData.current,
+            testData: testData.current,
+          });
         }
       }
     }
@@ -161,13 +179,22 @@ export default function HelpListSection() {
   }, [refreshTimeCounter]);
 
   const getSortedData = () => {
-    if (!needHelpData.current) return [];
+    console.log("coming to sort", sortBy);
+    if (!needHelpData.current || !testData.current) return [];
+
     if (sortBy === "time") {
-      return [...needHelpData.current].sort((a, b) => a.time - b.time);
-    } else {
-      return [...needHelpData.current].sort((a, b) => {
+      return needHelpData.current.sort((a, b) => a.time - b.time);
+    } else if (sortBy === "distance") {
+      return needHelpData.current.sort((a, b) => {
         return (a.dist || 0) - (b.dist || 0);
       });
+    } else {
+      console.log("sorting test data", testData.current);
+      const sorted = testData.current.sort((a, b) => {
+        return (a?.dist || 0) - (b?.dist || 0);
+      });
+      console.log("sorted test data", sorted);
+      return sorted;
     }
   };
 
@@ -189,11 +216,13 @@ export default function HelpListSection() {
           <select
             className="rounded-md px-4 text-black"
             onChange={(e) => {
+              console.log("setting sort by", e.target.value);
               setSortBy(e.target.value);
             }}
           >
             <option value="time">সময়</option>
-            <option value="distance">দূরত্ব</option>
+            <option value="distance">দূরত্ব</option>
+            <option value="test">Test</option>
           </select>
         </div>
 
@@ -206,7 +235,7 @@ export default function HelpListSection() {
             }
             fetchData();
           }}
-          className="w-fit flex gap-2 cursor-pointer disabled:text-neutral-600"
+          className="w-16 flex gap-2 cursor-pointer disabled:text-neutral-600"
         >
           রিফ্রেশ {refreshTimeCounter}
         </button>
@@ -215,7 +244,8 @@ export default function HelpListSection() {
         className="w-full grow scroll-1
   border rounded-xl overflow-y-auto overflow-x-hidden"
       >
-        {needHelpData.current.length ? (
+        {(sortBy !== "test" && needHelpData.current.length) ||
+        (sortBy === "test" && testData.current.length) ? (
           <div className="w-full h-fit flex flex-col gap-4 ">
             {getSortedData().map((data) => {
               return <HelpCard key={data.id} info={data} />;
@@ -228,9 +258,7 @@ export default function HelpListSection() {
         {needHelpData.current.length === 0 &&
           fetchState === fetchStates.idle && (
             <div className="w-full h-full flex justify-center items-center">
-              <p className="text-2xl">
-                আপনার নিকটবর্তি কেউ সাহায্যের আবেদন করেননি
-              </p>
+              <p className="text-2xl">গত ১ ঘণ্টায় কেউ সাহায্যের আবেদন করেননি</p>
             </div>
           )}
         {(fetchState === fetchStates.shareLocation ||

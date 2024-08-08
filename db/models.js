@@ -17,6 +17,7 @@ export const HelpModel = (orm) => {
       lat: DataTypes.INT,
       lon: DataTypes.INT,
       views: DataTypes.INT,
+      isTest: DataTypes.INT,
 
       victim_ip: DataTypes.STRING,
       added_at: DataTypes.INT,
