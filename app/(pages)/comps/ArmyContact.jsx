@@ -15,7 +15,7 @@ export default function ArmyContact() {
         backgroundColor: "#006A4E",
       }}
       className="w-full h-fit flex  flex-col 
-       text-xs md:text-base rounded-xl px-4 pt-1 
+       text-xs md:text-base rounded-xl md:px-4 pt-1 
       pb-0 md:pb-2 justify-between 
        items-center text-white"
     >
@@ -44,19 +44,23 @@ export default function ArmyContact() {
               </select>
             </div>
 
-            <div className="w-fit h-fit flex flex-col justify-start">
+            <div className="w-24 h-fit flex flex-col justify-start">
               <p className="text-white">জেলা</p>
               <select
                 onChange={(e) => setSelectedDistrict(e.target.value)}
                 disabled={!selectedDivision}
-                className="px-2 pt-0.5 rounded-md"
+                className="w-full max-w-full px-2 pt-0.5 rounded-md"
               >
                 {[
                   "বাছায় করুন",
                   ...Object.keys(armyNumber[selectedDivision]),
                 ].map((key) => {
                   return (
-                    <option key={key} value={key}>
+                    <option
+                      className="w-full overflow-clip"
+                      key={key}
+                      value={key}
+                    >
                       {key}
                     </option>
                   );
