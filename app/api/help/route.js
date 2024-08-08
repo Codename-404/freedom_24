@@ -262,7 +262,6 @@ export async function PUT(request) {
   }
 
   const sessionDataRes = await verifySession();
-  console.log("coming sessionDataRes", sessionDataRes);
   if (!sessionDataRes || !sessionDataRes.success) {
     return NextResponse.json(
       sessionDataRes || { message: "Session not found" }
@@ -273,6 +272,8 @@ export async function PUT(request) {
   const helpModel = HelpModel(orm);
 
   const paylaod = await request.json();
+
+  console.log("updating view count", paylaod.id);
 
   try {
     const isRequested = await helpModel.First({
@@ -290,7 +291,7 @@ export async function PUT(request) {
       );
     }
 
-    if (isRequested[helpKeys.victim_email === sessionDataRes.data.email]) {
+    if (isRequested[helpKeys.victim_email] === sessionDataRes.data.email) {
       return new NextResponse(
         JSON.stringify({
           data: [],
