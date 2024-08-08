@@ -15,7 +15,7 @@ export async function GET(request) {
 
   res = await helpModel.CreateTable({ strategy: "force" });
 
-  const qur = `CREATE INDEX IF NOT EXISTS helpdata_loc ON helpdata(lat,lon)`;
+  const qur = `CREATE INDEX IF NOT EXISTS helpdata_added ON helpdata(added_at)`;
   const qur1 = `CREATE INDEX IF NOT EXISTS helpdata_ip ON helpdata(victim_ip)`;
   const qur2 = `CREATE INDEX IF NOT EXISTS helpdata_id ON helpdata(id)`;
 
