@@ -7,13 +7,19 @@ import ArmyContact from "../comps/ArmyContact";
 
 export default function HomePage() {
   return (
-    <div className="w-screen h-fit min-h-screen p-4 md:p-10">
+    <div className="w-screen h-fit min-h-screen p-4 md:p-10 relative">
       <div
         className="w-full h-full md:grid md:grid-cols-2 
       flex flex-col gap-4 justify-between  overflow-hidden"
       >
         <div className="w-full h-[30%] md:h-full  flex flex-col gap-4 justify-start items-center">
           <div className="w-full h-full flex flex-col">
+            <div className="w-full h-fit hidden md:block">
+              <div className="w-full h-fit pb-4">
+                <ArmyContact />
+              </div>
+            </div>
+            <HelpButton />
             <div className="w-full grow flex md:flex-col">
               <img
                 src="/images/bd_flag_rect.webp"
@@ -31,12 +37,6 @@ export default function HomePage() {
                 <div className="w-full h-fit block md:hidden">
                   <ArmyContact />
                 </div>
-              </div>
-            </div>
-            <HelpButton />
-            <div className="w-full h-fit hidden md:block">
-              <div className="w-full h-fit pt-4">
-                <ArmyContact />
               </div>
             </div>
           </div>

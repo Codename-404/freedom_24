@@ -19,7 +19,7 @@ export default function ArmyContact() {
       pb-0 md:pb-2 justify-between 
        items-center text-white"
     >
-      <p className="w-full text-center font-bold text-lg md:text-xl">
+      <p className="w-full text-center font-bold text-lg md:text-3xl">
         বাংলাদেশ সেনাবাহিনী
       </p>
       <div

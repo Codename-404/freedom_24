@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@tsndr/cloudflare-worker-jwt": "^2.5.3",
     "cf-bindings-proxy": "^0.7.1",
     "d1-orm": "^0.9.1",
     "next": "14.2.5",

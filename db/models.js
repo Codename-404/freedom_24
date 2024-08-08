@@ -24,3 +24,20 @@ export const HelpModel = (orm) => {
     }
   );
 };
+export const UserModel = (orm) => {
+  return new Model(
+    {
+      D1Orm: orm,
+      tableName: "users",
+      primaryKeys: "id",
+      // autoIncrement: "id",
+      // uniqueKeys: [["email"]],
+    },
+    {
+      id: DataTypes.STRING,
+      name: DataTypes.STRING,
+      email: DataTypes.STRING,
+      added_at: DataTypes.INT,
+    }
+  );
+};
