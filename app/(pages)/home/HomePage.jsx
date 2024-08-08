@@ -7,7 +7,7 @@ import ArmyContact from "../comps/ArmyContact";
 
 export default function HomePage() {
   return (
-    <div className="w-screen h-screen max-h-screen p-4 md:p-10">
+    <div className="w-screen h-fit min-h-screen p-4 md:p-10">
       <div
         className="w-full h-full md:grid md:grid-cols-2 
       flex flex-col gap-4 justify-between  overflow-hidden"

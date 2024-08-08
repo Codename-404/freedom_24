@@ -28,7 +28,7 @@ export default function ArmyContact() {
       >
         <div className="w-full md:w-fit h-fit flex flex-col leading-3">
           <div className="w-full md:w-fit h-fit flex flex-col md:flex-row gap-2 text-black ">
-            <div className="w-full md:w-24 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
+            <div className="w-full md:w-32 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
               <p className="text-white">বিভাগ</p>
               <select
                 className="w-full px-2 pt-0.5 rounded-md"
@@ -44,7 +44,7 @@ export default function ArmyContact() {
               </select>
             </div>
 
-            <div className="w-full md:w-24 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
+            <div className="w-full md:w-32 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
               <p className="text-white">জেলা</p>
               <select
                 onChange={(e) => setSelectedDistrict(e.target.value)}
