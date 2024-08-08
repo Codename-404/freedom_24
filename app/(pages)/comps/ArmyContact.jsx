@@ -19,19 +19,19 @@ export default function ArmyContact() {
       pb-0 md:pb-2 justify-between 
        items-center text-white"
     >
-      <p className="w-full text-center font-bold text-xl">
+      <p className="w-full text-center font-bold text-lg md:text-xl">
         বাংলাদেশ সেনাবাহিনী
       </p>
       <div
         className="w-full h-fit flex flex-col md:flex-row md:gap-2 
       justify-between md:items-end items-center"
       >
-        <div className="w-fit h-fit flex flex-col leading-3">
-          <div className="w-fit h-fit flex gap-2 text-black ">
-            <div className="w-fit h-fit flex flex-col justify-start">
+        <div className="w-full md:w-fit h-fit flex flex-col leading-3">
+          <div className="w-full md:w-fit h-fit flex flex-col md:flex-row gap-2 text-black ">
+            <div className="w-full md:w-24 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
               <p className="text-white">বিভাগ</p>
               <select
-                className="px-2 pt-0.5 rounded-md"
+                className="w-full px-2 pt-0.5 rounded-md"
                 onChange={(e) => setSelectedDivision(e.target.value)}
               >
                 {Object.keys(armyNumber).map((key) => {
@@ -44,7 +44,7 @@ export default function ArmyContact() {
               </select>
             </div>
 
-            <div className="w-24 h-fit flex flex-col justify-start">
+            <div className="w-full md:w-24 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
               <p className="text-white">জেলা</p>
               <select
                 onChange={(e) => setSelectedDistrict(e.target.value)}

@@ -21,8 +21,10 @@ export default function HomePage() {
                 className="md:w-full w-60 md:max-w-2xl h-fit object-contain"
               />
               <div className="w-full h-full flex flex-col md:gap-2 text-center justify-center">
-                <h2 className="text-lg md:text-2xl">একে অপরকে সাহায্য করি</h2>
-                <p className="text-xl md:text-4xl text-white">
+                <h2 className="text-lg md:text-2xl hidden md:block">
+                  একে অপরকে সাহায্য করি
+                </h2>
+                <p className="text-xl md:text-4xl text-white hidden md:block">
                   সন্ত্রাসমুক্ত বাংলাদেশ গড়ি
                 </p>
 
