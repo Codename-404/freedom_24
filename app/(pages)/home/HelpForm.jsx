@@ -92,7 +92,7 @@ export default function HelpForm({ onClose }) {
   return (
     <Portal>
       <div className="w-full h-full backdrop-brightness-50 flex justify-center items-center text-black">
-        <div className="w-5/6 h-5/6 bg-white rounded-xl relative flex justify-center items-center">
+        <div className="w-5/6 h-5/6 bg-white rounded-xl relative flex flex-col justify-center items-center">
           <button
             onClick={() => {
               onClose();
@@ -103,8 +103,12 @@ export default function HelpForm({ onClose }) {
             X
           </button>
 
-          <div className="w-80 h-full flex flex-col gap-4 px-10 py-24 justify-between">
-            <div className="w-full h-fit flex flex-col gap-4">
+          <div className="w-full h-full flex flex-col gap-4 px-10 py-24 justify-between items-center">
+            <h2 className="text-2xl text-black tracking-wide max-w-lg text-center">
+              সর্তকতা! সাবমিট করলে, আপনার লোকেশন পাবলিকলি শেয়ার হবে পরবর্তি ১
+              ঘণ্টার জন্য
+            </h2>
+            <div className="w-80 h-fit flex flex-col gap-4">
               <TextInput
                 label={"আপনার নাম (অপশনাল)"}
                 type={"text"}
@@ -155,7 +159,7 @@ export default function HelpForm({ onClose }) {
               onClick={() => {
                 onSubmit();
               }}
-              className="w-full h-fit pt-2.5 pb-1.5 px-4 bg-red-500 rounded-lg text-white"
+              className="w-80 h-fit pt-2.5 pb-1.5 px-4 bg-red-500 rounded-lg text-white"
             >
               সাবমিট
             </button>

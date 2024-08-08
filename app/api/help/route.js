@@ -186,6 +186,7 @@ export async function POST(request) {
 
     const res = await helpModel.InsertOne({
       ...paylaod,
+      name: paylaod[helpKeys.name] || sessionDataRes.data.name,
       id: v4(),
       views: 0,
       isTest: isTesting,
