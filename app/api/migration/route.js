@@ -24,23 +24,23 @@ export async function GET(request) {
   const helpModel = HelpModel(orm);
   const userModel = UserModel(orm);
 
-  // const reqs = [];
-  // const time = Date.now();
-  // for (let i = 0; i < 50; i++) {
-  //   reqs.push(
-  //     helpModel.InsertOne({
-  //       id: v4(),
-  //       name: `victim_${i}`,
-  //       lat: (Math.random() * 990000) / 10000,
-  //       lon: (Math.random() * 990000) / 10000,
-  //       victim_email: `victim_${i}@gmail.com`,
-  //       victim_ip: v4(),
-  //       added_at: time + (Math.random() > 0.5 ? 1 : -1) * Math.random() * 1000,
-  //     })
-  //   );
-  // }
+  const reqs = [];
+  const time = Date.now();
+  for (let i = 0; i < 50; i++) {
+    reqs.push(
+      helpModel.InsertOne({
+        id: v4(),
+        name: `victim_${i}`,
+        lat: (Math.random() * 990000) / 10000,
+        lon: (Math.random() * 990000) / 10000,
+        victim_email: `victim_${i}@gmail.com`,
+        victim_ip: v4(),
+        added_at: time + (Math.random() > 0.5 ? 1 : -1) * Math.random() * 1000,
+      })
+    );
+  }
 
-  // res = await Promise.all(reqs);
+  res = await Promise.all(reqs);
 
   // res = await helpModel.CreateTable({ strategy: "force" });
   // res = await userModel.CreateTable({ strategy: "force" });

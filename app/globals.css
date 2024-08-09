@@ -22,15 +22,18 @@ body {
   font-weight: 100;
 }
 
+.help_container_parent {
+  height: calc(100vh - 200px);
+}
 .help_container {
   height: calc(100% - 500px);
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .help_container {
     height: calc(100% - 750px);
   }
-}
+} */
 
 .scroll-1::-webkit-scrollbar {
   width: 15px;

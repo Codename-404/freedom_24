@@ -23,7 +23,7 @@ export default function ArmyContact() {
         বাংলাদেশ সেনাবাহিনী
       </p>
       <div
-        className="w-full h-fit flex flex-col md:flex-row md:gap-2 
+        className="w-full h-fit flex flex-col md:flex-row gap-2 
       justify-between md:items-end items-center"
       >
         <div className="w-full md:w-fit h-fit flex flex-col leading-3">
@@ -44,7 +44,10 @@ export default function ArmyContact() {
               </select>
             </div>
 
-            <div className="w-full md:w-32 px-2 h-fit flex md:flex-col justify-start items-center gap-2 md:gap-0">
+            <div
+              className="w-full md:w-32 px-2 h-fit flex md:flex-col 
+            justify-start items-center gap-2 md:gap-1"
+            >
               <p className="text-white">জেলা</p>
               <select
                 onChange={(e) => setSelectedDistrict(e.target.value)}
@@ -70,7 +73,7 @@ export default function ArmyContact() {
           </div>
         </div>
         {selectedDivision && selectedDistrict && (
-          <div className="w-fit h-fit flex flex-col">
+          <div className="w-full md:w-fit h-fit flex md:flex-col justify-evenly">
             {armyNumber[selectedDivision][selectedDistrict].map((num) => {
               return (
                 <NumberCard key={num} number={convertNumbersToEnglish(num)} />

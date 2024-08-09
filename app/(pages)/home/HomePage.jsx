@@ -36,14 +36,14 @@ export default function HomePage() {
   }, [sessionData]);
 
   return (
-    <div className="w-screen h-fit min-h-screen p-4 md:p-10 relative">
+    <div className="w-screen h-screen min-h-screen p-4 md:p-10 relative">
       <div
         className="w-full h-full md:grid md:grid-cols-2 
       flex flex-col gap-4 justify-between  overflow-hidden"
       >
-        <div className="w-full h-[30%] md:h-full  flex flex-col gap-4 justify-start items-center">
+        <div className="w-full h-48  md:h-full  flex flex-col gap-4 justify-start items-center">
           <div className="w-full h-full flex flex-col">
-            <div className="w-full h-fit hidden md:block">
+            <div className="w-full h-fit ">
               <div className="w-full h-fit pb-4">
                 <ArmyContact />
               </div>
@@ -53,7 +53,7 @@ export default function HomePage() {
               <img
                 src="/images/bd_flag_rect.webp"
                 alt="image"
-                className="md:w-full w-60 md:max-w-2xl h-fit object-contain"
+                className="md:w-full w-60 md:max-w-2xl h-fit object-contain hidden md:block"
               />
               <div className="w-full h-full flex flex-col md:gap-2 text-center justify-center">
                 <h2 className="text-lg md:text-2xl hidden md:block">
@@ -62,10 +62,6 @@ export default function HomePage() {
                 <p className="text-xl md:text-4xl text-white hidden md:block">
                   সন্ত্রাসমুক্ত বাংলাদেশ গড়ি
                 </p>
-
-                <div className="w-full h-fit block md:hidden">
-                  <ArmyContact />
-                </div>
               </div>
             </div>
           </div>
@@ -93,7 +89,7 @@ export default function HomePage() {
         </div>
 
         <div
-          className="w-full h-[65%] md:h-full 
+          className="w-full grow md:h-full 
       flex flex-col justify-start items-center gap-2"
         >
           {userLocation && <HelpListSection userLocation={userLocation} />}

@@ -34,6 +34,26 @@ export default function HelpListSection({ userLocation }) {
   const hasMore = useRef(true);
   const windowSize = useWindowResize();
 
+  const calculateListContainerHeight = () => {
+    if (typeof window === "undefined") return;
+
+    const ele = document.getElementById("container_scale_comp");
+    const hardHeight =
+      windowSize.width <= 768
+        ? windowSize.height * 0.6
+        : windowSize.height * 0.8;
+    if (!ele) return hardHeight;
+
+    return ele.getBoundingClientRect().height || hardHeight;
+  };
+
+  const [listContainerHeight, setListContainerHeight] = useState(
+    calculateListContainerHeight()
+  );
+  useEffect(() => {
+    setListContainerHeight(calculateListContainerHeight());
+  }, [windowSize]);
+
   useEffect(() => {
     if (userLocation) {
       setFetchState(fetchStates.idle);
@@ -167,7 +187,7 @@ export default function HelpListSection({ userLocation }) {
   };
 
   return (
-    <div className="w-full h-full relative flex flex-col">
+    <div className="w-full h-full relative flex flex-col gap-2 ">
       {fetchState === fetchStates.loading && (
         <div
           className="absolute w-full h-full z-20 
@@ -177,12 +197,12 @@ export default function HelpListSection({ userLocation }) {
         </div>
       )}
 
-      <div className="w-full h-fit flex justify-between">
+      <div className="w-full h-10 flex justify-between">
         <h1>অন্যকে সাহায্য করুন</h1>
         <div className="w-fit h-fit text-white flex gap-2">
           <p>ফিল্টার করুন</p>
           <select
-            className="rounded-md px-4 text-black"
+            className="rounded-md px-2 text-black"
             onChange={(e) => {
               setSortBy(e.target.value);
             }}
@@ -210,51 +230,61 @@ export default function HelpListSection({ userLocation }) {
         </button>
       </div>
       <div
-        className="w-full grow scroll-1
-  border rounded-xl overflow-y-auto overflow-x-hidden"
+        className="w-full grow scroll-1  relative
+  border rounded-xl overflow-y-auto overflow-x-hidden infinite-scroll-component__outerdiv"
       >
-        {(sortBy !== "test" && needHelpData.current.length) ||
-        (sortBy === "test" && testData.current.length) ? (
-          // <div className="w-full h-fit flex flex-col gap-4 ">
-          <InfiniteScroll
-            height={
-              windowSize.width <= 768
-                ? windowSize.height * 0.6
-                : windowSize.height * 0.8
-            }
-            dataLength={userHelpData.current.length} //This is important field to render the next data
-            next={fetchData}
-            hasMore={hasMore.current}
-            loader={<h4>Loading...</h4>}
-            endMessage={
-              <p style={{ textAlign: "center" }}>
-                <b>সমাপ্তি</b>
-              </p>
-            }
-            // below props only if you need pull down functionality
-            refreshFunction={onRefreshScroll}
-            pullDownToRefresh
-            pullDownToRefreshThreshold={50}
-            pullDownToRefreshContent={
-              <h3 style={{ textAlign: "center" }}>
-                &#8595; Pull down to refresh
-              </h3>
-            }
-            releaseToRefreshContent={
-              <h3 style={{ textAlign: "center" }}>
-                &#8593; Release to refresh
-              </h3>
-            }
-          >
-            {userHelpData.current.map((data) => {
-              return <HelpCard key={data.id} info={data} />;
-            })}
-          </InfiniteScroll>
-        ) : (
-          // </div>
-          ""
-        )}
-
+        <div
+          id="container_scale_comp"
+          onLoad={() => {
+            setListContainerHeight(calculateListContainerHeight());
+          }}
+          className="absolute w-full h-full pointer-events-none"
+        ></div>
+        <div className="relative w-full h-full ">
+          {(sortBy !== "test" && needHelpData.current.length) ||
+          (sortBy === "test" && testData.current.length) ? (
+            // <div className="w-full h-fit flex flex-col gap-4 ">
+            <InfiniteScroll
+              // height={
+              //   windowSize.width <= 768
+              //     ? windowSize.height * 0.6
+              //     : windowSize.height * 0.8
+              // }
+              className="scroll-1"
+              height={listContainerHeight}
+              dataLength={userHelpData.current.length} //This is important field to render the next data
+              next={fetchData}
+              hasMore={hasMore.current}
+              loader={<h4>Loading...</h4>}
+              endMessage={
+                <p style={{ textAlign: "center" }}>
+                  <b>সমাপ্তি</b>
+                </p>
+              }
+              // below props only if you need pull down functionality
+              refreshFunction={onRefreshScroll}
+              pullDownToRefresh
+              pullDownToRefreshThreshold={50}
+              pullDownToRefreshContent={
+                <h3 style={{ textAlign: "center" }}>
+                  &#8595; Pull down to refresh
+                </h3>
+              }
+              releaseToRefreshContent={
+                <h3 style={{ textAlign: "center" }}>
+                  &#8593; Release to refresh
+                </h3>
+              }
+            >
+              {userHelpData.current.map((data) => {
+                return <HelpCard key={data.id} info={data} />;
+              })}
+            </InfiniteScroll>
+          ) : (
+            // </div>
+            ""
+          )}
+        </div>
         {needHelpData.current.length === 0 &&
           fetchState === fetchStates.idle && (
             <div className="w-full h-full flex justify-center items-center">
