@@ -240,10 +240,9 @@ export default function HelpListSection({ userLocation }) {
           }}
           className="absolute w-full h-full pointer-events-none"
         ></div>
-        <div className="relative w-full h-full ">
-          {(sortBy !== "test" && needHelpData.current.length) ||
-          (sortBy === "test" && testData.current.length) ? (
-            // <div className="w-full h-fit flex flex-col gap-4 ">
+        {(sortBy !== "test" && needHelpData.current.length) ||
+        (sortBy === "test" && testData.current.length) ? (
+          <div className="relative w-full h-full ">
             <InfiniteScroll
               className="scroll-1"
               height={listContainerHeight}
@@ -275,11 +274,10 @@ export default function HelpListSection({ userLocation }) {
                 return <HelpCard key={data.id} info={data} />;
               })}
             </InfiniteScroll>
-          ) : (
-            // </div>
-            ""
-          )}
-        </div>
+          </div>
+        ) : (
+          ""
+        )}
         {needHelpData.current.length === 0 &&
           fetchState === fetchStates.idle && (
             <div className="w-full h-full flex justify-center items-center">
