@@ -245,11 +245,6 @@ export default function HelpListSection({ userLocation }) {
           (sortBy === "test" && testData.current.length) ? (
             // <div className="w-full h-fit flex flex-col gap-4 ">
             <InfiniteScroll
-              // height={
-              //   windowSize.width <= 768
-              //     ? windowSize.height * 0.6
-              //     : windowSize.height * 0.8
-              // }
               className="scroll-1"
               height={listContainerHeight}
               dataLength={userHelpData.current.length} //This is important field to render the next data
